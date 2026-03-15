@@ -421,7 +421,7 @@ function shuffle(arr) {
 function pick(arr, n) { return shuffle(arr).slice(0, n); }
 function rndInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 
-// Search URL builders
+// Search URL builders — stores
 function sephoraUrl(q) { return 'https://www.sephora.com.tr/search?keyword=' + encodeURIComponent(q); }
 function gratisUrl(q)  { return 'https://www.gratis.com/catalogsearch/result/?q=' + encodeURIComponent(q); }
 function watsonsUrl(q) { return 'https://www.watsons.com.tr/search?text=' + encodeURIComponent(q); }
@@ -430,6 +430,30 @@ function douglasUrl(q) { return 'https://www.douglas.com.tr/tr/search/?q=' + enc
 function trendyolUrl(q){ return 'https://www.trendyol.com/sr?q=' + encodeURIComponent(q); }
 function kiehls()      { return 'https://www.kiehls.com.tr/urun-kategorisi/nemlendirici/'; }
 function goldenroseUrl(q){ return 'https://www.goldenrose.com.tr/search?type=product&q=' + encodeURIComponent(q); }
+
+// Social media URL builders — platforms
+function socialUrl(platform, tag) {
+  const clean = tag.replace(/^#/, '');
+  const q = encodeURIComponent(clean);
+  switch(platform) {
+    case 'TikTok':    return `https://www.tiktok.com/tag/${clean}`;
+    case 'Instagram': return `https://www.instagram.com/explore/tags/${clean}/`;
+    case 'Pinterest': return `https://www.pinterest.com/search/pins/?q=${q}`;
+    case 'YouTube':   return `https://www.youtube.com/results?search_query=${q}`;
+    default:          return `https://www.google.com/search?q=${q}+makeup`;
+  }
+}
+function trendUrl(t) {
+  const tag = (t.tags && t.tags[0]) ? t.tags[0] : t.title;
+  return socialUrl(t.platform, tag);
+}
+// Per-platform colors
+const platformMeta = {
+  TikTok:    { color:'#010101', bg:'#010101', label:'TikTok\'ta Ara' },
+  Instagram: { color:'#C13584', bg:'#C13584', label:'Instagram\'da Ara' },
+  Pinterest: { color:'#E60023', bg:'#E60023', label:'Pinterest\'te Ara' },
+  YouTube:   { color:'#FF0000', bg:'#FF0000', label:'YouTube\'da Ara' },
+};
 
 // ─── PRODUCT POOL ────────────────────────────────────────────────────────────
 const PRODUCT_POOL = [
@@ -629,7 +653,9 @@ function renderCard(p) {
 
 function renderTrendCard(t, idx) {
   const dots = Array(5).fill(0).map((_,i)=>`<div class="fire-dot" style="background:${i<t.fireLevel?'#D85A30':'#e8e4de'}"></div>`).join('');
-  return `<div class="trend-card" onclick="showTrend(${idx},'${t.cat||'all'}')">
+  const pm = platformMeta[t.platform] || {color:'#666', label:'Platforma Git'};
+  const url = trendUrl(t);
+  return `<a class="trend-card" href="${url}" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:inherit;display:block">
     <div class="trend-header">
       <div class="trend-icon" style="background:${t.platformColor}18">${t.emoji||t.icon||'✨'}</div>
       <div class="trend-meta">
@@ -641,9 +667,21 @@ function renderTrendCard(t, idx) {
     <div class="trend-body">
       <div class="trend-desc">${t.desc}</div>
       <div class="trend-viral">🔥 ${t.views} görüntüleme</div>
-      <div class="trend-footer">${(t.tags||[]).map(tag=>`<span class="trend-tag">${tag}</span>`).join('')}</div>
+      <div class="trend-footer">
+        ${(t.tags||[]).map(tag => {
+          const tagUrl = socialUrl(t.platform, tag);
+          return `<a href="${tagUrl}" target="_blank" rel="noopener noreferrer"
+            onclick="event.stopPropagation()"
+            style="font-size:11px;background:${t.platformColor}14;color:${t.platformColor};padding:3px 9px;border-radius:100px;text-decoration:none;border:1px solid ${t.platformColor}30">${tag}</a>`;
+        }).join('')}
+      </div>
+      <div style="margin-top:12px">
+        <span style="display:inline-flex;align-items:center;gap:5px;background:${pm.bg};color:#fff;font-size:11px;font-weight:500;padding:6px 13px;border-radius:100px">
+          ${t.platform === 'TikTok' ? '♪' : t.platform === 'YouTube' ? '▶' : t.platform === 'Instagram' ? '◈' : '📌'} ${pm.label}
+        </span>
+      </div>
     </div>
-  </div>`;
+  </a>`;
 }
 
 function renderBrandCard(b) {
@@ -778,21 +816,8 @@ function loadingBox() {
   return `<div class="ai-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div><span>Yükleniyor...</span></div>`;
 }
 
-function showTrend(idx, src) {
-  const pool = (src && src !== 'all') ? activeViralLooks : [...activeTrends, ...activeViralLooks];
-  const t = pool[idx] || activeTrends[idx] || activeViralLooks[idx];
-  if (!t) return;
-  document.getElementById('modalTitle').innerHTML = (t.emoji||t.icon||'✨') + ' ' + t.title;
-  document.getElementById('modalContent').innerHTML = `
-    <div style="margin-bottom:12px">
-      <span style="font-size:12px;font-weight:500;color:#D4537E">${t.platform} · 🔥 ${t.views} görüntüleme</span>
-      <p style="font-size:14px;color:#666;margin-top:8px;line-height:1.65">${t.desc}</p>
-      <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">
-        ${(t.tags||[]).map(tag=>`<span style="font-size:11px;background:#F1EFE8;color:#2C2C2A;padding:3px 10px;border-radius:100px">${tag}</span>`).join('')}
-      </div>
-    </div>`;
-  document.getElementById('modal').classList.add('open');
-}
+// Trend cards are now direct links — showTrend kept for backwards compat but unused
+function showTrend(idx, src) {}
 
 function showBrand(name) {
   const b = brands.find(x => x.name === name);
