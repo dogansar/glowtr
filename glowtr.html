@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="GlowTR">
+<meta name="theme-color" content="#D4537E">
+<title>GlowTR - Türkiye Kozmetik Platformu</title>
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23D4537E'/><text y='.9em' font-size='70' x='15'>💄</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --rose:#D4537E;--rose-l:#FBEAF0;--rose-d:#4B1528;
+  --teal:#1D9E75;--teal-l:#E1F5EE;--teal-d:#04342C;
+  --amber:#BA7517;--amber-l:#FAEEDA;--amber-d:#412402;
+  --gray:#888780;--gray-l:#F1EFE8;--gray-d:#2C2C2A;
+  --coral:#D85A30;--coral-l:#FAECE7;--coral-d:#4A1B0C;
+  --text:#1a1a1a;--text2:#666;--bg:#fafaf8;--white:#fff;
+  --border:#e8e4de;--radius:14px;--radius-sm:8px;
+  --safe-top: env(safe-area-inset-top);
+  --safe-bottom: env(safe-area-inset-bottom);
+  --safe-left: env(safe-area-inset-left);
+  --safe-right: env(safe-area-inset-right);
+  --bottom-nav-h: 64px;
+}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--bg);color:var(--text);
+  min-height:100vh;overflow-x:hidden;
+  /* push content above bottom nav */
+  padding-bottom:calc(var(--bottom-nav-h) + var(--safe-bottom));
+  /* prevent elastic scroll showing white */
+  background-attachment:fixed;
+}
+
+/* ── TOP NAV (desktop only) ── */
+nav{
+  background:var(--white);border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:100;
+  padding:0 2rem;
+  padding-left:calc(2rem + var(--safe-left));
+  padding-right:calc(2rem + var(--safe-right));
+}
+.nav-inner{max-width:1300px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:60px;gap:12px}
+.logo{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;letter-spacing:-0.5px;color:var(--rose);flex-shrink:0}
+.logo span{color:var(--text);font-style:italic}
+.nav-tabs{display:flex;gap:4px;flex-wrap:nowrap;overflow-x:auto}
+.nav-tabs::-webkit-scrollbar{display:none}
+.tab-btn{padding:8px 16px;border:none;background:transparent;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text2);border-radius:100px;transition:all .2s;white-space:nowrap;-webkit-appearance:none}
+.tab-btn.active{background:var(--rose);color:var(--white)}
+.nav-badge{background:var(--coral);color:var(--white);font-size:10px;padding:2px 6px;border-radius:100px;margin-left:4px;vertical-align:middle}
+.refresh-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;border:1px solid var(--border);border-radius:100px;background:transparent;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--text2);flex-shrink:0;white-space:nowrap;-webkit-appearance:none;min-height:36px}
+.refresh-btn.spinning svg{animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── BOTTOM TAB BAR (mobile) ── */
+.bottom-nav{
+  display:none;
+  position:fixed;
+  bottom:0;left:0;right:0;
+  z-index:150;
+  background:var(--white);
+  border-top:1px solid var(--border);
+  padding-bottom:var(--safe-bottom);
+  padding-left:var(--safe-left);
+  padding-right:var(--safe-right);
+  -webkit-backdrop-filter:blur(12px);
+  backdrop-filter:blur(12px);
+  background:rgba(255,255,255,.92);
+}
+.bottom-nav-inner{display:flex;height:var(--bottom-nav-h)}
+.bnav-btn{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;border:none;background:transparent;cursor:pointer;
+  font-family:'DM Sans',sans-serif;font-size:10px;font-weight:500;
+  color:var(--text2);padding:8px 4px;
+  -webkit-appearance:none;
+  transition:color .15s;
+  min-height:44px;/* Apple HIG minimum tap target */
+}
+.bnav-btn.active{color:var(--rose)}
+.bnav-icon{font-size:20px;line-height:1;transition:transform .15s}
+.bnav-btn.active .bnav-icon{transform:scale(1.15)}
+.bnav-label{font-size:10px;letter-spacing:.01em}
+
+/* ── HERO ── */
+.hero-strip{
+  background:linear-gradient(135deg,var(--rose-d) 0%,var(--rose) 50%,#F4C0D1 100%);
+  color:var(--white);padding:2.5rem 1.5rem 2rem;text-align:center;
+}
+.hero-strip h1{font-family:'Playfair Display',serif;font-size:clamp(24px,6vw,50px);font-weight:700;line-height:1.15}
+.hero-strip h1 em{font-style:italic;color:#F4C0D1}
+.hero-strip p{opacity:.85;margin-top:8px;font-size:14px}
+.hero-stats{display:flex;justify-content:center;gap:2rem;margin-top:1.25rem;flex-wrap:wrap}
+.h-stat{text-align:center}
+.h-stat-n{font-size:24px;font-weight:700;font-family:'Playfair Display',serif}
+.h-stat-l{font-size:10px;opacity:.75;text-transform:uppercase;letter-spacing:.5px}
+.last-updated{font-size:11px;opacity:.55;margin-top:.5rem}
+
+/* ── PAGES ── */
+.page{display:none;padding:1.25rem;max-width:1300px;margin:0 auto}
+.page.active{display:block}
+
+/* ── FILTER BAR ── */
+.filter-bar{display:flex;gap:8px;margin-bottom:1.25rem;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+.filter-bar::-webkit-scrollbar{display:none}
+.filter-label{font-size:12px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;line-height:30px}
+.filter-chip{
+  padding:7px 15px;border:1px solid var(--border);border-radius:100px;
+  font-size:13px;cursor:pointer;background:var(--white);color:var(--text2);
+  font-family:'DM Sans',sans-serif;white-space:nowrap;flex-shrink:0;
+  -webkit-appearance:none;min-height:36px;
+}
+.filter-chip.active{background:var(--rose);border-color:var(--rose);color:var(--white)}
+
+/* ── PRODUCT GRID ── */
+.product-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.product-card{
+  background:var(--white);border:1px solid var(--border);border-radius:var(--radius);
+  overflow:hidden;cursor:pointer;text-decoration:none;display:block;color:inherit;
+  -webkit-user-select:none;user-select:none;
+  transition:transform .15s;
+  /* prevent ghost click flash on iOS */
+  -webkit-tap-highlight-color:transparent;
+}
+.product-card:active{transform:scale(.97)}
+.product-img{height:140px;display:flex;align-items:center;justify-content:center;font-size:46px;position:relative}
+.product-badge{position:absolute;top:8px;left:8px;font-size:9px;font-weight:500;padding:3px 8px;border-radius:100px;text-transform:uppercase;letter-spacing:.3px}
+.badge-new{background:var(--teal-l);color:var(--teal-d)}
+.badge-sale{background:var(--coral-l);color:var(--coral-d)}
+.badge-hot{background:var(--amber-l);color:var(--amber-d)}
+.product-body{padding:11px 12px 13px}
+.product-brand{font-size:9px;font-weight:500;color:var(--rose);text-transform:uppercase;letter-spacing:.5px}
+.product-name{font-size:13px;font-weight:500;margin:3px 0 5px;line-height:1.35}
+.product-price{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.price-now{font-size:15px;font-weight:700;font-family:'Playfair Display',serif}
+.price-old{font-size:11px;color:var(--text2);text-decoration:line-through}
+.price-pct{font-size:10px;color:var(--coral);font-weight:500;background:var(--coral-l);padding:2px 5px;border-radius:100px}
+.product-store{font-size:10px;color:var(--text2);margin-top:3px}
+.product-rating{font-size:10px;color:var(--amber);margin-top:2px}
+.go-btn{display:inline-block;margin-top:8px;font-size:11px;font-weight:500;color:var(--rose);background:var(--rose-l);padding:5px 11px;border-radius:100px;border:1px solid #F4C0D1}
+
+/* ── SECTION HEADERS ── */
+.section-hdr{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1rem;margin-top:.25rem}
+.section-hdr h2{font-family:'Playfair Display',serif;font-size:clamp(18px,4vw,25px);font-weight:700}
+.section-hdr h2 em{font-style:italic;color:var(--rose)}
+
+/* ── TREND GRID ── */
+.trend-grid{display:grid;grid-template-columns:1fr;gap:12px}
+.trend-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.trend-card:active{opacity:.85}
+.trend-header{padding:16px 16px 0;display:flex;align-items:flex-start;gap:12px}
+.trend-icon{width:48px;height:48px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.trend-meta{flex:1;min-width:0}
+.trend-platform{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.5px}
+.trend-title{font-size:14px;font-weight:500;margin:3px 0;line-height:1.35;font-family:'Playfair Display',serif}
+.fire-bar{display:flex;gap:3px;margin-top:5px}
+.fire-dot{width:6px;height:6px;border-radius:50%}
+.trend-body{padding:10px 16px 15px}
+.trend-desc{font-size:13px;color:var(--text2);line-height:1.55}
+.trend-viral{font-size:12px;color:var(--rose);font-weight:500;margin-top:7px}
+.trend-footer{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap}
+.trend-tag{font-size:11px;background:var(--gray-l);color:var(--gray-d);padding:3px 9px;border-radius:100px}
+
+/* ── VIRAL BANNER ── */
+.viral-banner{background:var(--rose);color:var(--white);border-radius:var(--radius);padding:16px 18px;display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;gap:12px}
+.viral-banner h3{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;font-style:italic}
+.viral-banner p{font-size:12px;opacity:.85;margin-top:3px}
+.viral-count{font-size:30px;font-weight:700;font-family:'Playfair Display',serif;text-align:center;flex-shrink:0}
+
+/* ── BRANDS ── */
+.brand-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.brand-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:15px 10px;text-align:center;cursor:pointer;-webkit-tap-highlight-color:transparent;min-height:44px}
+.brand-card:active{background:var(--rose-l)}
+.brand-logo{font-size:28px;display:block;margin-bottom:6px}
+.brand-name{font-size:11px;font-weight:500;line-height:1.3}
+.brand-origin{font-size:10px;color:var(--text2);margin-top:2px}
+.brand-count{font-size:10px;color:var(--rose);font-weight:500;margin-top:3px}
+
+/* ── ANNOUNCE BAR ── */
+.announce-bar{background:var(--amber-l);border:1px solid #FAC775;border-radius:var(--radius-sm);padding:9px 12px;display:flex;align-items:center;gap:8px;margin-bottom:1.1rem}
+.announce-bar span{font-size:12px;color:var(--amber-d)}
+
+/* ── INNER TABS ── */
+.inner-tabs{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:1.25rem;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap}
+.inner-tabs::-webkit-scrollbar{display:none}
+.inner-tab{padding:10px 14px;border:none;background:transparent;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text2);border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;flex-shrink:0;-webkit-appearance:none;min-height:44px}
+.inner-tab.active{color:var(--rose);border-bottom-color:var(--rose)}
+
+/* ── MODAL (sheet style on mobile) ── */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:flex-end;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{
+  background:var(--white);
+  border-radius:20px 20px 0 0;
+  padding:1.5rem 1.5rem calc(1.5rem + var(--safe-bottom));
+  width:100%;max-height:88vh;overflow-y:auto;position:relative;
+  -webkit-overflow-scrolling:touch;
+}
+/* drag handle */
+.modal::before{content:'';display:block;width:40px;height:4px;background:#ddd;border-radius:2px;margin:0 auto 1.1rem}
+.modal-close{position:absolute;top:20px;right:16px;border:none;background:var(--gray-l);width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center}
+.modal h2{font-family:'Playfair Display',serif;font-size:18px;margin-bottom:.85rem;padding-right:2rem}
+
+/* ── COUNTDOWN ── */
+.countdown{display:flex;gap:7px;margin-top:8px}
+.cd-unit{background:rgba(255,255,255,.25);color:var(--white);padding:5px 8px;border-radius:var(--radius-sm);text-align:center;min-width:40px}
+.cd-n{font-size:18px;font-weight:700;font-family:'Playfair Display',serif;display:block}
+.cd-l{font-size:9px;opacity:.8;text-transform:uppercase;letter-spacing:.5px}
+
+/* ── AI LOADING ── */
+.ai-loading{display:flex;align-items:center;gap:9px;padding:14px;color:var(--text2);font-size:13px}
+.ai-dot{width:6px;height:6px;background:var(--rose);border-radius:50%;animation:pulse 1.2s infinite}
+.ai-dot:nth-child(2){animation-delay:.2s}
+.ai-dot:nth-child(3){animation-delay:.4s}
+@keyframes pulse{0%,100%{opacity:.2}50%{opacity:1}}
+
+/* ── DESKTOP OVERRIDES ── */
+@media(min-width:700px){
+  body{padding-bottom:0}
+  .bottom-nav{display:none!important}
+  .page{padding:2rem}
+  .product-grid{grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:1.25rem}
+  .product-img{height:170px}
+  .product-img span{font-size:52px}
+  .product-badge{font-size:10px}
+  .product-body{padding:13px 15px 14px}
+  .product-brand{font-size:10px}
+  .product-name{font-size:13px}
+  .price-now{font-size:16px}
+  .trend-grid{grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:1.25rem}
+  .brand-grid{grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:1rem}
+  .modal-bg{align-items:center}
+  .modal{border-radius:var(--radius);max-width:500px;padding:1.75rem}
+  .modal::before{display:none}
+  .filter-bar{flex-wrap:wrap;overflow-x:visible}
+}
+
+/* ── HIDE DESKTOP NAV ON MOBILE ── */
+@media(max-width:699px){
+  nav .nav-tabs{display:none}
+  nav .refresh-btn .btn-label{display:none}
+  .bottom-nav{display:block}
+  .hero-strip{padding:2rem 1rem 1.75rem}
+  .hero-stats{gap:1.5rem}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <div class="logo">Glow<span>TR</span></div>
+    <div class="nav-tabs">
+      <button class="tab-btn active" onclick="showPage('new')">✨ Yeni Ürünler</button>
+      <button class="tab-btn" onclick="showPage('sale')">🏷️ İndirimler <span class="nav-badge">HOT</span></button>
+      <button class="tab-btn" onclick="showPage('trends')">🔥 Trendler</button>
+      <button class="tab-btn" onclick="showPage('viral')">💄 Viral Makyaj</button>
+      <button class="tab-btn" onclick="showPage('brands')">🌐 Markalar</button>
+    </div>
+    <button class="refresh-btn" id="refreshBtn" onclick="refreshAll()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink:0"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+      <span class="btn-label">Yenile</span>
+    </button>
+  </div>
+</nav>
+
+<!-- BOTTOM TAB BAR (mobile / iPhone) -->
+<div class="bottom-nav" id="bottomNav">
+  <div class="bottom-nav-inner">
+    <button class="bnav-btn active" id="bnav-new" onclick="showPage('new')">
+      <span class="bnav-icon">✨</span>
+      <span class="bnav-label">Yeni</span>
+    </button>
+    <button class="bnav-btn" id="bnav-sale" onclick="showPage('sale')">
+      <span class="bnav-icon">🏷️</span>
+      <span class="bnav-label">İndirim</span>
+    </button>
+    <button class="bnav-btn" id="bnav-trends" onclick="showPage('trends')">
+      <span class="bnav-icon">🔥</span>
+      <span class="bnav-label">Trendler</span>
+    </button>
+    <button class="bnav-btn" id="bnav-viral" onclick="showPage('viral')">
+      <span class="bnav-icon">💄</span>
+      <span class="bnav-label">Viral</span>
+    </button>
+    <button class="bnav-btn" id="bnav-brands" onclick="showPage('brands')">
+      <span class="bnav-icon">🌐</span>
+      <span class="bnav-label">Markalar</span>
+    </button>
+  </div>
+</div>
+
+<div class="hero-strip">
+  <h1>Türkiye'nin <em>En Güncel</em> Kozmetik Platformu</h1>
+  <p>Tüm online mağazaları, trendleri ve viral ürünleri tek ekranda takip et</p>
+  <div class="hero-stats">
+    <div class="h-stat"><div class="h-stat-n" id="statNew">—</div><div class="h-stat-l">Yeni Ürün</div></div>
+    <div class="h-stat"><div class="h-stat-n" id="statSale">—</div><div class="h-stat-l">İndirimde</div></div>
+    <div class="h-stat"><div class="h-stat-n" id="statTrend">—</div><div class="h-stat-l">Trend</div></div>
+    <div class="h-stat"><div class="h-stat-n">120+</div><div class="h-stat-l">Marka</div></div>
+  </div>
+  <div class="last-updated" id="lastUpdated"></div>
+</div>
+
+<!-- YENİ ÜRÜNLER -->
+<div id="page-new" class="page active">
+  <div class="announce-bar" id="announceBar">
+    <span>🔔</span><span id="announceText">Yükleniyor...</span>
+  </div>
+  <div class="filter-bar">
+    <span class="filter-label">Kategori:</span>
+    <button class="filter-chip active" onclick="filterProducts(this,'all')">Tümü</button>
+    <button class="filter-chip" onclick="filterProducts(this,'fondoten')">Fondöten & BB</button>
+    <button class="filter-chip" onclick="filterProducts(this,'ruj')">Ruj & Dudak</button>
+    <button class="filter-chip" onclick="filterProducts(this,'goz')">Göz Makyajı</button>
+    <button class="filter-chip" onclick="filterProducts(this,'cilt')">Cilt Bakım</button>
+    <button class="filter-chip" onclick="filterProducts(this,'parfum')">Parfüm</button>
+  </div>
+  <div class="section-hdr"><h2>Bu Hafta <em>Yeni Gelenler</em></h2></div>
+  <div class="product-grid" id="newProductsGrid"></div>
+  <div style="margin-top:2.5rem">
+    <div class="section-hdr"><h2><em>Yakında</em> Geliyor</h2></div>
+    <div class="product-grid" id="comingSoonGrid"></div>
+  </div>
+</div>
+
+<!-- İNDİRİMLER -->
+<div id="page-sale" class="page">
+  <div style="background:linear-gradient(135deg,#D85A30,#F0997B);color:#fff;border-radius:var(--radius);padding:22px;margin-bottom:1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px">
+    <div>
+      <div style="font-size:11px;opacity:.8;text-transform:uppercase;letter-spacing:.5px;font-weight:500">Flash İndirim Bitiyor</div>
+      <div style="font-family:'Playfair Display',serif;font-size:19px;font-weight:700;margin:5px 0">Bahar Kampanyası 2025</div>
+      <div class="countdown" id="countdown"></div>
+    </div>
+    <div style="text-align:center">
+      <div style="font-size:48px;font-weight:700;font-family:'Playfair Display',serif;line-height:1">%70</div>
+      <div style="font-size:13px;opacity:.85;margin-top:3px">e kadar indirim</div>
+    </div>
+  </div>
+  <div class="inner-tabs">
+    <button class="inner-tab active" onclick="showSaleTab(this,'all')">Tüm İndirimler</button>
+    <button class="inner-tab" onclick="showSaleTab(this,'50plus')">%50+ İndirim</button>
+    <button class="inner-tab" onclick="showSaleTab(this,'flash')">⚡ %40+ Flash</button>
+  </div>
+  <div class="product-grid" id="saleProductsGrid"></div>
+</div>
+
+<!-- SOSYAL MEDYA TRENDLERİ -->
+<div id="page-trends" class="page">
+  <div class="viral-banner">
+    <div>
+      <h3>Bu Hafta En Çok Konuşulan</h3>
+      <p>Instagram, TikTok ve Pinterest'ten derlenen güncel trendler</p>
+    </div>
+    <div class="viral-count">1.4M<br><span style="font-size:12px;opacity:.7;font-family:'DM Sans',sans-serif;font-weight:400">gönderi</span></div>
+  </div>
+  <div class="inner-tabs">
+    <button class="inner-tab active" onclick="showTrendTab(this,'all')">Tümü</button>
+    <button class="inner-tab" onclick="showTrendTab(this,'tiktok')">TikTok</button>
+    <button class="inner-tab" onclick="showTrendTab(this,'instagram')">Instagram</button>
+    <button class="inner-tab" onclick="showTrendTab(this,'pinterest')">Pinterest</button>
+    <button class="inner-tab" onclick="showTrendTab(this,'youtube')">YouTube</button>
+  </div>
+  <div class="trend-grid" id="trendsGrid"></div>
+</div>
+
+<!-- VİRAL MAKYAJ -->
+<div id="page-viral" class="page">
+  <div class="announce-bar">
+    <span>💄</span>
+    <span><strong>Viral Makyaj Uygulamaları</strong> — Her yenilemede farklı ve güncel teknikler!</span>
+  </div>
+  <div class="inner-tabs">
+    <button class="inner-tab active" onclick="showViralTab(this,'all')">Tümü</button>
+    <button class="inner-tab" onclick="showViralTab(this,'natural')">Doğal & No-Makeup</button>
+    <button class="inner-tab" onclick="showViralTab(this,'bold')">Bold & Dramatik</button>
+    <button class="inner-tab" onclick="showViralTab(this,'skincare')">Skin-First</button>
+    <button class="inner-tab" onclick="showViralTab(this,'editorial')">Editorial</button>
+  </div>
+  <div class="trend-grid" id="viralGrid"></div>
+</div>
+
+<!-- MARKALAR -->
+<div id="page-brands" class="page">
+  <div class="section-hdr"><h2>Türkiye'de <em>Satış Yapan</em> Markalar</h2></div>
+  <div class="filter-bar">
+    <span class="filter-label">Köken:</span>
+    <button class="filter-chip active" onclick="filterBrands(this,'all')">Tümü</button>
+    <button class="filter-chip" onclick="filterBrands(this,'tr')">🇹🇷 Yerli</button>
+    <button class="filter-chip" onclick="filterBrands(this,'eu')">🇪🇺 Avrupa</button>
+    <button class="filter-chip" onclick="filterBrands(this,'us')">🇺🇸 ABD</button>
+    <button class="filter-chip" onclick="filterBrands(this,'kr')">🇰🇷 Kore</button>
+  </div>
+  <div class="brand-grid" id="brandsGrid"></div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modal" onclick="closeModal(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('modal').classList.remove('open')">✕</button>
+    <h2 id="modalTitle"></h2>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<script>
+// ─── HELPERS ────────────────────────────────────────────────────────────────
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function pick(arr, n) { return shuffle(arr).slice(0, n); }
+function rndInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+// Search URL builders
+function sephoraUrl(q) { return 'https://www.sephora.com.tr/search?keyword=' + encodeURIComponent(q); }
+function gratisUrl(q)  { return 'https://www.gratis.com/catalogsearch/result/?q=' + encodeURIComponent(q); }
+function watsonsUrl(q) { return 'https://www.watsons.com.tr/search?text=' + encodeURIComponent(q); }
+function flormarUrl(q) { return 'https://www.flormar.com.tr/search?q=' + encodeURIComponent(q); }
+function douglasUrl(q) { return 'https://www.douglas.com.tr/tr/search/?q=' + encodeURIComponent(q); }
+function trendyolUrl(q){ return 'https://www.trendyol.com/sr?q=' + encodeURIComponent(q); }
+function kiehls()      { return 'https://www.kiehls.com.tr/urun-kategorisi/nemlendirici/'; }
+function goldenroseUrl(q){ return 'https://www.goldenrose.com.tr/search?type=product&q=' + encodeURIComponent(q); }
+
+// ─── PRODUCT POOL ────────────────────────────────────────────────────────────
+const PRODUCT_POOL = [
+  // CHARLOTTE TILBURY
+  {emoji:'💄',brand:'Charlotte Tilbury',name:'Pillow Talk Lip Liner',price:'850',store:'Sephora TR',url:sephoraUrl('charlotte tilbury lip liner pillow talk'),rating:'★★★★★',badge:'new',cat:'ruj',bg:'#FBEAF0'},
+  {emoji:'✨',brand:'Charlotte Tilbury',name:'Flawless Filter Foundation',price:'1.350',store:'Sephora TR',url:sephoraUrl('charlotte tilbury flawless filter'),rating:'★★★★★',badge:'hot',cat:'fondoten',bg:'#FAEEDA'},
+  {emoji:'🌟',brand:'Charlotte Tilbury',name:'Magic Cream Moisturiser',price:'1.650',store:'Sephora TR',url:sephoraUrl('charlotte tilbury magic cream'),rating:'★★★★★',badge:'hot',cat:'cilt',bg:'#E1F5EE'},
+  {emoji:'💋',brand:'Charlotte Tilbury',name:'Matte Revolution Lipstick',price:'920',store:'Sephora TR',url:sephoraUrl('charlotte tilbury matte revolution'),rating:'★★★★☆',badge:'new',cat:'ruj',bg:'#FBEAF0'},
+  {emoji:'🌸',brand:'Charlotte Tilbury',name:'Airbrush Flawless Finish Powder',price:'1.100',store:'Sephora TR',url:sephoraUrl('charlotte tilbury airbrush powder'),rating:'★★★★★',badge:'new',cat:'cilt',bg:'#F4C0D1'},
+  // NARS
+  {emoji:'🌸',brand:'NARS',name:'Light Reflecting Foundation',price:'1.450',store:'Sephora TR',url:sephoraUrl('nars light reflecting foundation'),rating:'★★★★☆',badge:'new',cat:'fondoten',bg:'#E1F5EE'},
+  {emoji:'💋',brand:'NARS',name:'Orgasm Blush',price:'900',store:'Sephora TR',url:sephoraUrl('nars orgasm blush'),rating:'★★★★★',badge:'hot',cat:'cilt',bg:'#FBEAF0'},
+  {emoji:'👁️',brand:'NARS',name:'Climax Mascara',price:'780',store:'Sephora TR',url:sephoraUrl('nars climax mascara'),rating:'★★★★☆',badge:'new',cat:'goz',bg:'#FAECE7'},
+  {emoji:'✨',brand:'NARS',name:'Soft Matte Complete Foundation',price:'1.200',store:'Sephora TR',url:sephoraUrl('nars soft matte foundation'),rating:'★★★★☆',badge:'new',cat:'fondoten',bg:'#E1F5EE'},
+  // HUDA BEAUTY
+  {emoji:'✨',brand:'Huda Beauty',name:'Easy Bake Loose Powder',price:'890',store:'Sephora TR',url:sephoraUrl('huda beauty easy bake powder'),rating:'★★★★★',badge:'hot',cat:'cilt',bg:'#FAEEDA'},
+  {emoji:'👁️',brand:'Huda Beauty',name:'Legit Lashes Mascara',price:'760',store:'Sephora TR',url:sephoraUrl('huda beauty legit lashes'),rating:'★★★★☆',badge:'new',cat:'goz',bg:'#FAECE7'},
+  {emoji:'💄',brand:'Huda Beauty',name:'Demi Matte Lip Set',price:'1.100',store:'Sephora TR',url:sephoraUrl('huda beauty demi matte lip'),rating:'★★★★★',badge:'new',cat:'ruj',bg:'#FBEAF0'},
+  // URBAN DECAY
+  {emoji:'👁️',brand:'Urban Decay',name:'Naked Eyeshadow Palette',price:'1.250',store:'Sephora TR',url:sephoraUrl('urban decay naked palette'),rating:'★★★★★',badge:'hot',cat:'goz',bg:'#FAECE7'},
+  {emoji:'🔥',brand:'Urban Decay',name:'All Nighter Setting Spray',price:'490',store:'Sephora TR',url:sephoraUrl('urban decay all nighter spray'),rating:'★★★★☆',badge:'new',cat:'cilt',bg:'#FAECE7'},
+  {emoji:'✏️',brand:'Urban Decay',name:'24/7 Glide-On Eye Pencil',price:'550',store:'Sephora TR',url:sephoraUrl('urban decay 247 eye pencil'),rating:'★★★★★',badge:'new',cat:'goz',bg:'#E6F1FB'},
+  // MAC
+  {emoji:'💋',brand:'MAC Cosmetics',name:'Matte Lipstick Ruby Woo',price:'720',store:'Sephora TR',url:sephoraUrl('mac matte lipstick ruby woo'),rating:'★★★★★',badge:'hot',cat:'ruj',bg:'#FBEAF0'},
+  {emoji:'🌸',brand:'MAC Cosmetics',name:'Studio Fix Powder Foundation',price:'950',store:'Sephora TR',url:sephoraUrl('mac studio fix powder foundation'),rating:'★★★★☆',badge:'new',cat:'fondoten',bg:'#E1F5EE'},
+  {emoji:'✨',brand:'MAC Cosmetics',name:'Prep + Prime Fix+',price:'580',store:'Sephora TR',url:sephoraUrl('mac prep prime fix'),rating:'★★★★☆',badge:'new',cat:'cilt',bg:'#EAF3DE'},
+  // FLORMAR
+  {emoji:'🫧',brand:'Flormar',name:'Hyaluron Serum Foundation',price:'299',store:'Flormar.com',url:flormarUrl('hyaluron serum fondoten'),rating:'★★★★☆',badge:'new',cat:'fondoten',bg:'#E1F5EE'},
+  {emoji:'💄',brand:'Flormar',name:'Extreme Matte Lipstick',price:'159',store:'Flormar.com',url:flormarUrl('extreme matte lipstick'),rating:'★★★★☆',badge:'new',cat:'ruj',bg:'#FBEAF0'},
+  {emoji:'👁️',brand:'Flormar',name:'Volume & Lifting Mascara',price:'189',store:'Flormar.com',url:flormarUrl('volume lifting maskara'),rating:'★★★☆☆',badge:'new',cat:'goz',bg:'#FAECE7'},
+  {emoji:'✨',brand:'Flormar',name:'Compact Powder All-in-One',price:'219',store:'Flormar.com',url:flormarUrl('compact powder'),rating:'★★★★☆',badge:'hot',cat:'cilt',bg:'#FAEEDA'},
+  // THE ORDINARY
+  {emoji:'🌿',brand:'The Ordinary',name:'Squalane Cleanser',price:'380',store:'Gratis',url:gratisUrl('the ordinary squalane cleanser'),rating:'★★★★★',badge:'hot',cat:'cilt',bg:'#EAF3DE'},
+  {emoji:'🔬',brand:'The Ordinary',name:'Niacinamide 10% + Zinc 1%',price:'290',store:'Gratis',url:gratisUrl('the ordinary niacinamide'),rating:'★★★★★',badge:'hot',cat:'cilt',bg:'#E1F5EE'},
+  {emoji:'💧',brand:'The Ordinary',name:'Hyaluronic Acid 2% + B5',price:'310',store:'Gratis',url:gratisUrl('the ordinary hyaluronic acid'),rating:'★★★★★',badge:'new',cat:'cilt',bg:'#EAF3DE'},
+  {emoji:'🌿',brand:'The Ordinary',name:'AHA 30% + BHA 2% Peeling',price:'350',store:'Gratis',url:gratisUrl('the ordinary aha bha peeling'),rating:'★★★★☆',badge:'new',cat:'cilt',bg:'#EAF3DE'},
+  // MAYBELLINE
+  {emoji:'🦋',brand:'Maybelline',name:'Sky High Mascara',price:'219',store:'Gratis',url:gratisUrl('maybelline sky high maskara'),rating:'★★★★★',badge:'hot',cat:'goz',bg:'#E6F1FB'},
+  {emoji:'💄',brand:'Maybelline',name:'SuperStay Matte Ink Lipstick',price:'199',store:'Gratis',url:gratisUrl('maybelline superstay matte ink'),rating:'★★★★☆',badge:'new',cat:'ruj',bg:'#FBEAF0'},
+  {emoji:'🌸',brand:'Maybelline',name:'Fit Me Foundation',price:'229',store:'Gratis',url:gratisUrl('maybelline fit me fondoten'),rating:'★★★★☆',badge:'new',cat:'fondoten',bg:'#E1F5EE'},
+  {emoji:'✏️',brand:'Maybelline',name:'Tattoo Studio Liner',price:'179',store:'Gratis',url:gratisUrl('maybelline tattoo liner'),rating:'★★★★☆',badge:'new',cat:'goz',bg:'#FAECE7'},
+  // GOLDEN ROSE
+  {emoji:'💅',brand:'Golden Rose',name:'Velvet Matte Lipstick',price:'129',store:'Gratis',url:gratisUrl('golden rose velvet matte'),rating:'★★★★☆',badge:'new',cat:'ruj',bg:'#FBEAF0'},
+  {emoji:'✨',brand:'Golden Rose',name:'Dream Skin Liquid Foundation',price:'189',store:'Gratis',url:gratisUrl('golden rose dream skin fondoten'),rating:'★★★★☆',badge:'new',cat:'fondoten',bg:'#E1F5EE'},
+  {emoji:'👁️',brand:'Golden Rose',name:'Handle Eye Liner Pencil',price:'89',store:'Gratis',url:gratisUrl('golden rose liner'),rating:'★★★☆☆',badge:'new',cat:'goz',bg:'#FAECE7'},
+  // RARE BEAUTY
+  {emoji:'🫧',brand:'Rare Beauty',name:'Soft Pinch Liquid Blush',price:'980',store:'Sephora TR',url:sephoraUrl('rare beauty soft pinch blush'),rating:'★★★★★',badge:'hot',cat:'cilt',bg:'#FBEAF0'},
+  {emoji:'✨',brand:'Rare Beauty',name:'Positive Light Tinted Moisturizer',price:'1.100',store:'Sephora TR',url:sephoraUrl('rare beauty tinted moisturizer'),rating:'★★★★☆',badge:'new',cat:'fondoten',bg:'#FAEEDA'},
+  // BENEFIT
+  {emoji:'🫧',brand:'Benefit',name:'POREfessional Primer',price:'750',store:'Sephora TR',url:sephoraUrl('benefit porefessional primer'),rating:'★★★★★',badge:'new',cat:'cilt',bg:'#FAECE7'},
+  {emoji:'🌸',brand:'Benefit',name:'Dandelion Blush',price:'820',store:'Sephora TR',url:sephoraUrl('benefit dandelion blush'),rating:'★★★★☆',badge:'new',cat:'cilt',bg:'#FBEAF0'},
+  // YSL
+  {emoji:'💄',brand:'YSL Beauty',name:'Rouge Volupté Shine',price:'1.100',store:'Sephora TR',url:sephoraUrl('ysl rouge volupte shine'),rating:'★★★★★',badge:'hot',cat:'ruj',bg:'#FBEAF0'},
+  {emoji:'✨',brand:'YSL Beauty',name:'Touche Éclat Radiant Touch',price:'1.350',store:'Sephora TR',url:sephoraUrl('ysl touche eclat'),rating:'★★★★★',badge:'hot',cat:'cilt',bg:'#FAEEDA'},
+  // LANCÔME
+  {emoji:'🌸',brand:'Lancôme',name:'Teint Idole Ultra Wear',price:'1.400',store:'Sephora TR',url:sephoraUrl('lancome teint idole ultra wear'),rating:'★★★★☆',badge:'new',cat:'fondoten',bg:'#E1F5EE'},
+  {emoji:'👁️',brand:'Lancôme',name:'Hypnôse Mascara',price:'980',store:'Sephora TR',url:sephoraUrl('lancome hypnose mascara'),rating:'★★★★★',badge:'hot',cat:'goz',bg:'#FAECE7'},
+  // TOO FACED
+  {emoji:'✨',brand:'Too Faced',name:'Better Than Sex Mascara',price:'650',store:'Sephora TR',url:sephoraUrl('too faced better than sex mascara'),rating:'★★★★★',badge:'hot',cat:'goz',bg:'#FAEEDA'},
+  {emoji:'🍑',brand:'Too Faced',name:'Peach Perfect Foundation',price:'850',store:'Sephora TR',url:sephoraUrl('too faced peach perfect foundation'),rating:'★★★★☆',badge:'new',cat:'fondoten',bg:'#FAEEDA'},
+  // CATRICE
+  {emoji:'💄',brand:'Catrice',name:'Ultimate Stay Waterfree Lipstick',price:'149',store:'Watsons',url:watsonsUrl('catrice ultimate stay lipstick'),rating:'★★★★☆',badge:'new',cat:'ruj',bg:'#FBEAF0'},
+  {emoji:'✨',brand:'Catrice',name:'All Matt Plus Foundation',price:'129',store:'Watsons',url:watsonsUrl('catrice all matt foundation'),rating:'★★★★☆',badge:'new',cat:'fondoten',bg:'#E1F5EE'},
+  {emoji:'👁️',brand:'Catrice',name:'Glam & Doll Mascara',price:'99',store:'Watsons',url:watsonsUrl('catrice glam doll mascara'),rating:'★★★☆☆',badge:'new',cat:'goz',bg:'#FAECE7'},
+  // ESSENCE
+  {emoji:'💄',brand:'Essence',name:'This Is Me Lip Liner',price:'79',store:'Watsons',url:watsonsUrl('essence lip liner'),rating:'★★★★☆',badge:'new',cat:'ruj',bg:'#FBEAF0'},
+  {emoji:'✨',brand:'Essence',name:'Pure Nude Highlighter',price:'89',store:'Watsons',url:watsonsUrl('essence pure nude highlighter'),rating:'★★★★☆',badge:'hot',cat:'cilt',bg:'#FAEEDA'},
+  {emoji:'👁️',brand:'Essence',name:'Lash Princess Mascara',price:'99',store:'Watsons',url:watsonsUrl('essence lash princess mascara'),rating:'★★★★★',badge:'hot',cat:'goz',bg:'#FAECE7'},
+  // KIEHL'S
+  {emoji:'🌿',brand:"Kiehl's",name:"Ultra Facial Cream SPF30",price:'980',store:"Kiehl's TR",url:kiehls(),rating:'★★★★★',badge:'hot',cat:'cilt',bg:'#EAF3DE'},
+  {emoji:'💧',brand:"Kiehl's",name:'Clearly Corrective Dark Spot Serum',price:'1.250',store:"Kiehl's TR",url:kiehls(),rating:'★★★★☆',badge:'new',cat:'cilt',bg:'#E1F5EE'},
+  // COSRX
+  {emoji:'🐌',brand:'COSRX',name:'Advanced Snail 96 Mucin Serum',price:'480',store:'Trendyol',url:trendyolUrl('cosrx snail 96 mucin serum'),rating:'★★★★★',badge:'hot',cat:'cilt',bg:'#EAF3DE'},
+  {emoji:'🌿',brand:'COSRX',name:'AHA/BHA Clarifying Treatment Toner',price:'350',store:'Trendyol',url:trendyolUrl('cosrx clarifying toner'),rating:'★★★★☆',badge:'new',cat:'cilt',bg:'#E1F5EE'},
+  // LANEIGE
+  {emoji:'💙',brand:'Laneige',name:'Lip Sleeping Mask Berry',price:'580',store:'Trendyol',url:trendyolUrl('laneige lip sleeping mask'),rating:'★★★★★',badge:'hot',cat:'ruj',bg:'#E6F1FB'},
+  {emoji:'💧',brand:'Laneige',name:'Water Sleeping Mask',price:'780',store:'Trendyol',url:trendyolUrl('laneige water sleeping mask'),rating:'★★★★★',badge:'new',cat:'cilt',bg:'#E1F5EE'},
+  // PARFÜM
+  {emoji:'🌹',brand:'Dior Beauty',name:'Miss Dior EDP 50ml',price:'2.850',store:'Sephora TR',url:sephoraUrl('dior miss dior edp'),rating:'★★★★★',badge:'hot',cat:'parfum',bg:'#FBEAF0'},
+  {emoji:'🌸',brand:'Lancôme',name:'La Vie Est Belle EDP 50ml',price:'2.650',store:'Douglas TR',url:douglasUrl('lancome la vie est belle edp'),rating:'★★★★★',badge:'hot',cat:'parfum',bg:'#F4C0D1'},
+  {emoji:'✨',brand:'YSL Beauty',name:'Black Opium EDP 30ml',price:'2.200',store:'Sephora TR',url:sephoraUrl('ysl black opium edp'),rating:'★★★★★',badge:'new',cat:'parfum',bg:'#FAEEDA'},
+];
+
+const COMING_SOON_POOL = [
+  {emoji:'🌙',brand:'Charlotte Tilbury',name:'Pillow Talk Contour Wand',price:'~1.100',store:'Sephora TR',url:sephoraUrl('charlotte tilbury contour'),rating:'Yakında',badge:'new',cat:'cilt',bg:'#F4C0D1'},
+  {emoji:'🌹',brand:'Dior Beauty',name:'Rouge Dior Satin Spring 2025',price:'~1.900',store:'Sephora TR',url:sephoraUrl('dior rouge satin'),rating:'Yakında',badge:'new',cat:'ruj',bg:'#FBEAF0'},
+  {emoji:'⭐',brand:'Rare Beauty',name:'Find Comfort Foundation SPF20',price:'~1.150',store:'Sephora TR',url:sephoraUrl('rare beauty find comfort foundation'),rating:'Yakında',badge:'new',cat:'fondoten',bg:'#FAEEDA'},
+  {emoji:'💜',brand:'Urban Decay',name:'Naked Ultra Nourishing Lip Gloss',price:'~680',store:'Sephora TR',url:sephoraUrl('urban decay naked lip gloss'),rating:'Yakında',badge:'new',cat:'ruj',bg:'#E6F1FB'},
+  {emoji:'🌟',brand:'NARS',name:'Afterglow Liquid Blush',price:'~950',store:'Sephora TR',url:sephoraUrl('nars afterglow liquid blush'),rating:'Yakında',badge:'new',cat:'cilt',bg:'#FBEAF0'},
+  {emoji:'🍃',brand:'The Ordinary',name:'Retinol 1% in Squalane',price:'~420',store:'Gratis',url:gratisUrl('the ordinary retinol squalane'),rating:'Yakında',badge:'new',cat:'cilt',bg:'#EAF3DE'},
+];
+
+// ─── SALE POOL ───────────────────────────────────────────────────────────────
+const SALE_POOL = [
+  {emoji:'💄',brand:'YSL Beauty',name:'Rouge Volupté Shine',price:'720',oldPrice:'1.200',pct:40,store:'Sephora TR',url:sephoraUrl('ysl rouge volupte shine ruj'),rating:'★★★★★',badge:'sale',cat:'ruj',bg:'#FBEAF0'},
+  {emoji:'🌸',brand:'Lancôme',name:'Teint Idole Ultra Wear',price:'850',oldPrice:'1.700',pct:50,store:'Sephora TR',url:sephoraUrl('lancome teint idole fondoten'),rating:'★★★★☆',badge:'sale',cat:'fondoten',bg:'#E1F5EE'},
+  {emoji:'✨',brand:'Too Faced',name:'Better Than Sex Mascara',price:'490',oldPrice:'780',pct:37,store:'Sephora TR',url:sephoraUrl('too faced better than sex mascara'),rating:'★★★★★',badge:'sale',cat:'goz',bg:'#FAEEDA'},
+  {emoji:'💅',brand:'OPI',name:'Infinite Shine Nail Polish Set',price:'380',oldPrice:'780',pct:51,store:'Watsons',url:watsonsUrl('opi infinite shine'),rating:'★★★★☆',badge:'sale',cat:'cilt',bg:'#E6F1FB'},
+  {emoji:'🫧',brand:'Benefit',name:'POREfessional Primer',price:'550',oldPrice:'890',pct:38,store:'Sephora TR',url:sephoraUrl('benefit porefessional primer'),rating:'★★★★☆',badge:'sale',cat:'cilt',bg:'#FAECE7'},
+  {emoji:'🌿',brand:"Kiehl's",name:'Ultra Facial Cream SPF30',price:'680',oldPrice:'1.350',pct:50,store:"Kiehl's TR",url:kiehls(),rating:'★★★★★',badge:'sale',cat:'cilt',bg:'#EAF3DE'},
+  {emoji:'💋',brand:'NARS',name:'Orgasm Blush',price:'650',oldPrice:'1.300',pct:50,store:'Sephora TR',url:sephoraUrl('nars orgasm blush allık'),rating:'★★★★★',badge:'sale',cat:'cilt',bg:'#FBEAF0'},
+  {emoji:'🔥',brand:'Urban Decay',name:'All Nighter Setting Spray',price:'340',oldPrice:'550',pct:38,store:'Sephora TR',url:sephoraUrl('urban decay all nighter setting spray'),rating:'★★★★☆',badge:'sale',cat:'cilt',bg:'#FAECE7'},
+  {emoji:'🌙',brand:'Charlotte Tilbury',name:'Magic Cream Mini',price:'480',oldPrice:'780',pct:38,store:'Sephora TR',url:sephoraUrl('charlotte tilbury magic cream mini'),rating:'★★★★★',badge:'sale',cat:'cilt',bg:'#F4C0D1'},
+  {emoji:'💄',brand:'MAC Cosmetics',name:'Matte Lipstick Set (3lü)',price:'890',oldPrice:'1.650',pct:46,store:'Sephora TR',url:sephoraUrl('mac matte lipstick set'),rating:'★★★★☆',badge:'sale',cat:'ruj',bg:'#FBEAF0'},
+  {emoji:'✨',brand:'Huda Beauty',name:'Easy Bake Powder',price:'590',oldPrice:'990',pct:40,store:'Sephora TR',url:sephoraUrl('huda beauty easy bake'),rating:'★★★★★',badge:'sale',cat:'cilt',bg:'#FAEEDA'},
+  {emoji:'👁️',brand:'Lancôme',name:'Hypnôse Mascara',price:'580',oldPrice:'980',pct:41,store:'Sephora TR',url:sephoraUrl('lancome hypnose mascara'),rating:'★★★★★',badge:'sale',cat:'goz',bg:'#FAECE7'},
+  {emoji:'🌿',brand:'The Ordinary',name:'Multi-Item Cilt Seti',price:'490',oldPrice:'850',pct:42,store:'Gratis',url:gratisUrl('the ordinary cilt bakım seti'),rating:'★★★★★',badge:'sale',cat:'cilt',bg:'#EAF3DE'},
+  {emoji:'🐌',brand:'COSRX',name:'Snail Mucin Essence',price:'320',oldPrice:'580',pct:45,store:'Trendyol',url:trendyolUrl('cosrx snail mucin essence'),rating:'★★★★★',badge:'sale',cat:'cilt',bg:'#E1F5EE'},
+  {emoji:'💙',brand:'Laneige',name:'Lip Sleeping Mask Set',price:'380',oldPrice:'680',pct:44,store:'Trendyol',url:trendyolUrl('laneige lip sleeping mask set'),rating:'★★★★★',badge:'sale',cat:'ruj',bg:'#E6F1FB'},
+  {emoji:'💄',brand:'Flormar',name:'Perfect Coverage Foundation',price:'129',oldPrice:'219',pct:41,store:'Flormar.com',url:flormarUrl('perfect coverage fondoten'),rating:'★★★★☆',badge:'sale',cat:'fondoten',bg:'#E1F5EE'},
+];
+
+// ─── TREND POOL ───────────────────────────────────────────────────────────────
+const TREND_POOL = [
+  {emoji:'🤍',platform:'TikTok',platformColor:'#333',title:'Clean Girl Aesthetic',desc:'Minimal, sağlıklı görünen cilt makyajı. Jel blöf, ıslak fondöten ve barely-there highlight kombinasyonu.',tags:['#cleangirl','#minimalmakeup','#glassskin'],views:'48.2M',fireLevel:5,cat:'tiktok'},
+  {emoji:'🌸',platform:'Instagram',platformColor:'#C13584',title:'Cherry Cola Lips',desc:'2025\'in en sıcak dudak trendi. Koyu kırmızı-kahverengi tonlarda derin ve kaygısız bir ifade.',tags:['#cherrycola','#darklips','#vintageglam'],views:'22.7M',fireLevel:4,cat:'instagram'},
+  {emoji:'💎',platform:'Pinterest',platformColor:'#E60023',title:'Glass Skin Dewy Look',desc:'Serum bazlı fondötenler ve ışıltılı highlighter kombinasyonu. K-Beauty\'nin etkisiyle tüm dünyada yayılıyor.',tags:['#glassskin','#dewy','#kbeauty'],views:'31.4M',fireLevel:5,cat:'pinterest'},
+  {emoji:'🦋',platform:'TikTok',platformColor:'#333',title:'Butterfly Liner',desc:'Gözün köşesine ince kelebek kanatları çizen yaratıcı eyeliner tekniği. Hızla yayılan estetik trend.',tags:['#butterflyliner','#creativeliner','#artmakeup'],views:'19.8M',fireLevel:4,cat:'tiktok'},
+  {emoji:'🌅',platform:'YouTube',platformColor:'#FF0000',title:'Bronzed Summer Glow',desc:'Bronzer, terracotta blush ve altın highlight kombinasyonu. Tatilden yeni dönmüş görünümü yaratıyor.',tags:['#bronzemakeup','#summerglow','#bronzer'],views:'14.5M',fireLevel:3,cat:'youtube'},
+  {emoji:'🖤',platform:'Instagram',platformColor:'#C13584',title:'Mob Wife Makeup',desc:'Koyu, dramatik ve bold. Siyah eyeliner, koyu dudak ve yoğun allık ile karanlık glamour trendi.',tags:['#mobwife','#boldmakeup','#dramaticmakeup'],views:'27.1M',fireLevel:5,cat:'instagram'},
+  {emoji:'🍓',platform:'TikTok',platformColor:'#333',title:'Strawberry Makeup',desc:'Kırmızı-pembe blush yoğunluğu, yapay çil efekti ve şeffaf dudak parlatıcısı. Tatlı, taze ve sevimli.',tags:['#strawberry','#blushdrunk','#cutegirl'],views:'35.6M',fireLevel:5,cat:'tiktok'},
+  {emoji:'🌿',platform:'Pinterest',platformColor:'#E60023',title:'Quiet Luxury Beauty',desc:'Markalı ürünler yerine kaliteye odaklanmak. Nötr tonlar, doğal görünüm, rafine estetik.',tags:['#quietluxury','#oldmoney','#minimalist'],views:'18.3M',fireLevel:4,cat:'pinterest'},
+  {emoji:'💜',platform:'YouTube',platformColor:'#FF0000',title:'Purple Eyeshadow Trend',desc:'Lavanta ve mor tonların tüm göz kapağına yayıldığı kışkırtıcı bir göz makyajı trendi.',tags:['#purple','#eyeshadow','#boldcolors'],views:'12.9M',fireLevel:3,cat:'youtube'},
+  {emoji:'🌊',platform:'Instagram',platformColor:'#C13584',title:'Wet Hair + Dewy Skin Combo',desc:'Islak görünümlü saç ve cam cilt kombinasyonu. Kusursuz ve doğal bir güzellik.',tags:['#wethair','#dewyskin','#effortless'],views:'24.5M',fireLevel:4,cat:'instagram'},
+  {emoji:'🔮',platform:'TikTok',platformColor:'#333',title:'Aura Makeup',desc:'Tek renkten yoğun başlayıp dışa doğru açılan gradyan blush tekniği. Esrarengiz bir parlaklık etkisi.',tags:['#auramakeup','#gradientblush','#colorpop'],views:'41.2M',fireLevel:5,cat:'tiktok'},
+  {emoji:'🍑',platform:'Pinterest',platformColor:'#E60023',title:'Peach Fuzz Beauty',desc:'2024-2025\'in pantone rengi. Şeftali tonlarında dudak, blush ve göz farı kombinasyonu.',tags:['#peachfuzz','#pantone','#warmtones'],views:'16.8M',fireLevel:4,cat:'pinterest'},
+];
+
+const VIRAL_POOL = [
+  {emoji:'🌿',platform:'TikTok',platformColor:'#333',title:'No-Makeup Makeup Look',desc:'Cilt bakımından güç alan doğal görünüm. Tinted moisturizer, cream blush ve clear lip gloss.',tags:['#nomakeup','#skincaremakeup','#natural'],views:'67M',fireLevel:5,cat:'natural'},
+  {emoji:'🖤',platform:'TikTok',platformColor:'#333',title:'Black Glossy Lids',desc:'Siyah göz farı üzerine şeffaf gloss uygulaması. Gecenin en dramatik ve çarpıcı trendi.',tags:['#glossylids','#boldmakeup','#dramatic'],views:'38M',fireLevel:5,cat:'bold'},
+  {emoji:'✨',platform:'Instagram',platformColor:'#C13584',title:'Skin-First Makeup',desc:'Önce derin cilt bakımı, sonra minimal makyaj. SPF, serum, nemlendirici layering tekniği.',tags:['#skinfirst','#skincare','#bareface'],views:'44M',fireLevel:5,cat:'skincare'},
+  {emoji:'🎨',platform:'Pinterest',platformColor:'#E60023',title:'Graphic Liner Art',desc:'Geometrik şekiller, renkli çizgiler ve asimetrik eyeliner uygulamaları. Sanatsal ifade özgürlüğü.',tags:['#graphicliner','#artmakeup','#editorial'],views:'12M',fireLevel:4,cat:'editorial'},
+  {emoji:'💜',platform:'TikTok',platformColor:'#333',title:'Y2K Glam Revival',desc:'2000\'lerin ikonik estetiği geri döndü. Frost dudak, glitter göz ve ince kaş nostalji dalgası.',tags:['#y2k','#2000smakeup','#nostalgia'],views:'51M',fireLevel:5,cat:'bold'},
+  {emoji:'🌺',platform:'YouTube',platformColor:'#FF0000',title:'Sunset Eye Technique',desc:'Turuncu, sarı ve kırmızı göz farlarını altta yoğun, üstte açık olacak şekilde karıştırma.',tags:['#sunseteyemakeup','#gradient','#warmtones'],views:'18M',fireLevel:4,cat:'editorial'},
+  {emoji:'🍒',platform:'TikTok',platformColor:'#333',title:'Cherry Girl Makeup',desc:'Parlak kırmızı dudak, allıklı yanak ve sağlıklı cilt. Taze ve enerjik cherry aesthetic.',tags:['#cherrygirl','#redlip','#cherrymakeup'],views:'29M',fireLevel:4,cat:'bold'},
+  {emoji:'🌼',platform:'Instagram',platformColor:'#C13584',title:'Soft Glam Natural',desc:'Yumuşak bronz tonlar, pembe allık ve nude dudak kombinasyonu. Her güne uyan sofistike look.',tags:['#softglam','#nudemakeup','#everydaylook'],views:'33M',fireLevel:4,cat:'natural'},
+  {emoji:'🧊',platform:'TikTok',platformColor:'#333',title:'Ice Girl Look',desc:'Buz mavisi ve gümüş tonlarında göz makyajı ile ultra parlak, soğuk bir cilt tonu.',tags:['#icegirl','#silvereye','#coolmakeup'],views:'22M',fireLevel:4,cat:'editorial'},
+  {emoji:'🌱',brand:'',platform:'Pinterest',platformColor:'#E60023',title:'Skinimalism',desc:'Cilt mükemmelliğine odaklanarak minimum ürün kullanan modern güzellik anlayışı. Cilt senin makyajın.',tags:['#skinimalism','#lessismore','#clearskin'],views:'40M',fireLevel:5,cat:'skincare'},
+  {emoji:'🍊',platform:'TikTok',platformColor:'#333',title:'Orange Peel Skin',desc:'Portakal kabuğu dokusunu kucaklayan trend. Makyajda mükemmel deri kaygısından vazgeçmek.',tags:['#orangepeelskin','#texture','#skinpositivity'],views:'26M',fireLevel:4,cat:'skincare'},
+  {emoji:'🌙',platform:'YouTube',platformColor:'#FF0000',title:'Evening Smoky Tutorial',desc:'Klasik smokey eye\'ı modern yorumla: siyah yerine kahverengi ve gümüş tonları ile.',tags:['#smokyeye','#eveningmakeup','#brownsmoky'],views:'15M',fireLevel:3,cat:'bold'},
+];
+
+// ─── BRANDS ─────────────────────────────────────────────────────────────────
+const brands = [
+  {logo:'🌸',name:'Charlotte Tilbury',origin:'İngiltere',origin_key:'eu',count:'45+ ürün'},
+  {logo:'💄',name:'MAC Cosmetics',origin:'ABD',origin_key:'us',count:'120+ ürün'},
+  {logo:'✨',name:'NARS',origin:'ABD',origin_key:'us',count:'80+ ürün'},
+  {logo:'🌿',name:'The Ordinary',origin:'Kanada',origin_key:'eu',count:'60+ ürün'},
+  {logo:'💅',name:'Flormar',origin:'Türkiye',origin_key:'tr',count:'200+ ürün'},
+  {logo:'🔬',name:'Golden Rose',origin:'Türkiye',origin_key:'tr',count:'150+ ürün'},
+  {logo:'🌙',name:'Huda Beauty',origin:'ABD',origin_key:'us',count:'55+ ürün'},
+  {logo:'🫧',name:'Rare Beauty',origin:'ABD',origin_key:'us',count:'35+ ürün'},
+  {logo:'🌺',name:'YSL Beauty',origin:'Fransa',origin_key:'eu',count:'70+ ürün'},
+  {logo:'💎',name:'Lancôme',origin:'Fransa',origin_key:'eu',count:'90+ ürün'},
+  {logo:'🍃',name:"Kiehl's",origin:'ABD',origin_key:'us',count:'40+ ürün'},
+  {logo:'🎀',name:'Too Faced',origin:'ABD',origin_key:'us',count:'50+ ürün'},
+  {logo:'🦢',name:'Dior Beauty',origin:'Fransa',origin_key:'eu',count:'65+ ürün'},
+  {logo:'🌊',name:'Urban Decay',origin:'ABD',origin_key:'us',count:'75+ ürün'},
+  {logo:'🏵️',name:'Benefit',origin:'ABD',origin_key:'us',count:'45+ ürün'},
+  {logo:'🌱',name:'Laneige',origin:'Güney Kore',origin_key:'kr',count:'30+ ürün'},
+  {logo:'💊',name:'COSRX',origin:'Güney Kore',origin_key:'kr',count:'55+ ürün'},
+  {logo:'🌻',name:'Some By Mi',origin:'Güney Kore',origin_key:'kr',count:'40+ ürün'},
+  {logo:'🌷',name:'Maybelline',origin:'ABD',origin_key:'us',count:'140+ ürün'},
+  {logo:'🎯',name:"L'Oréal Paris",origin:'Fransa',origin_key:'eu',count:'180+ ürün'},
+  {logo:'🌟',name:'Essence',origin:'Almanya',origin_key:'eu',count:'200+ ürün'},
+  {logo:'🍒',name:'Catrice',origin:'Almanya',origin_key:'eu',count:'190+ ürün'},
+  {logo:'🌹',name:'Shu Uemura',origin:'Japonya',origin_key:'kr',count:'30+ ürün'},
+  {logo:'💡',name:'Dermacol',origin:'Çekya',origin_key:'eu',count:'35+ ürün'},
+];
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let activeNewProducts = [], activeSaleProducts = [], activeTrends = [], activeViralLooks = [];
+
+// ─── RENDER ──────────────────────────────────────────────────────────────────
+function renderCard(p) {
+  const bc = p.badge==='new'?'badge-new':p.badge==='sale'?'badge-sale':'badge-hot';
+  const bt = p.badge==='new'?'YENİ':p.badge==='sale'?'İNDİRİM':'POPÜLER';
+  return `<a class="product-card" href="${p.url}" target="_blank" rel="noopener noreferrer">
+    <div class="product-img" style="background:${p.bg||'#FBEAF0'}">
+      <span style="font-size:52px">${p.emoji}</span>
+      <span class="product-badge ${bc}">${bt}</span>
+    </div>
+    <div class="product-body">
+      <div class="product-brand">${p.brand}</div>
+      <div class="product-name">${p.name}</div>
+      <div class="product-price">
+        <span class="price-now">${p.price} ₺</span>
+        ${p.oldPrice?`<span class="price-old">${p.oldPrice} ₺</span><span class="price-pct">-%${p.pct}</span>`:''}
+      </div>
+      <div class="product-store">📦 ${p.store}</div>
+      <div class="product-rating">${p.rating}</div>
+      <span class="go-btn">Mağazada ara →</span>
+    </div>
+  </a>`;
+}
+
+function renderTrendCard(t, idx) {
+  const dots = Array(5).fill(0).map((_,i)=>`<div class="fire-dot" style="background:${i<t.fireLevel?'#D85A30':'#e8e4de'}"></div>`).join('');
+  return `<div class="trend-card" onclick="showTrend(${idx},'${t.cat||'all'}')">
+    <div class="trend-header">
+      <div class="trend-icon" style="background:${t.platformColor}18">${t.emoji||t.icon||'✨'}</div>
+      <div class="trend-meta">
+        <div class="trend-platform" style="color:${t.platformColor}">${t.platform}</div>
+        <div class="trend-title">${t.title}</div>
+        <div class="fire-bar">${dots}</div>
+      </div>
+    </div>
+    <div class="trend-body">
+      <div class="trend-desc">${t.desc}</div>
+      <div class="trend-viral">🔥 ${t.views} görüntüleme</div>
+      <div class="trend-footer">${(t.tags||[]).map(tag=>`<span class="trend-tag">${tag}</span>`).join('')}</div>
+    </div>
+  </div>`;
+}
+
+function renderBrandCard(b) {
+  return `<div class="brand-card" onclick="showBrand('${b.name}')">
+    <span class="brand-logo">${b.logo}</span>
+    <div class="brand-name">${b.name}</div>
+    <div class="brand-origin">${b.origin}</div>
+    <div class="brand-count">${b.count}</div>
+  </div>`;
+}
+
+// ─── LOAD DATA ───────────────────────────────────────────────────────────────
+function loadData() {
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('tr-TR', {day:'numeric', month:'long', year:'numeric'});
+  const timeStr = now.toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'});
+
+  // Pick fresh random subsets
+  activeNewProducts = pick(PRODUCT_POOL, 8).map((p,i) => ({...p, id: i}));
+  const comingSoon   = pick(COMING_SOON_POOL, 3).map((p,i) => ({...p, id: 90+i}));
+  activeSaleProducts = pick(SALE_POOL, 8).map((p,i) => ({...p, id: 20+i}));
+  activeTrends       = pick(TREND_POOL, 6).map((p,i) => ({...p, id: i}));
+  activeViralLooks   = pick(VIRAL_POOL, 6).map((p,i) => ({...p, id: i}));
+
+  // Render
+  document.getElementById('newProductsGrid').innerHTML = activeNewProducts.map(renderCard).join('');
+  document.getElementById('comingSoonGrid').innerHTML  = comingSoon.map(renderCard).join('');
+  document.getElementById('saleProductsGrid').innerHTML = activeSaleProducts.map(renderCard).join('');
+  document.getElementById('trendsGrid').innerHTML = activeTrends.map((t,i) => renderTrendCard(t,i)).join('');
+  document.getElementById('viralGrid').innerHTML  = activeViralLooks.map((t,i) => renderTrendCard(t,i)).join('');
+  document.getElementById('brandsGrid').innerHTML = brands.map(renderBrandCard).join('');
+
+  // Stats
+  document.getElementById('statNew').textContent   = activeNewProducts.length;
+  document.getElementById('statSale').textContent  = activeSaleProducts.length;
+  document.getElementById('statTrend').textContent = activeTrends.length + activeViralLooks.length;
+  document.getElementById('lastUpdated').textContent = `Son güncelleme: ${timeStr} · ${dateStr}`;
+  document.getElementById('announceText').innerHTML = `<strong>Bu hafta eklendi:</strong> ${activeNewProducts.length} yeni ürün · ${dateStr}`;
+
+  // Reset filters
+  document.querySelectorAll('#page-new .filter-bar .filter-chip').forEach(b => b.classList.remove('active'));
+  document.querySelector('#page-new .filter-bar .filter-chip').classList.add('active');
+}
+
+// ─── REFRESH ─────────────────────────────────────────────────────────────────
+function refreshAll() {
+  const btn = document.getElementById('refreshBtn');
+  btn.classList.add('spinning');
+  setTimeout(() => {
+    loadData();
+    btn.classList.remove('spinning');
+  }, 400);
+}
+
+// ─── COUNTDOWN ───────────────────────────────────────────────────────────────
+function updateCountdown() {
+  const now = new Date();
+  const end = new Date(now.getFullYear(), now.getMonth(), now.getDate()+2, 12, 0, 0);
+  const diff = end - now;
+  if (diff <= 0) return;
+  const h = Math.floor(diff/3600000);
+  const m = Math.floor((diff%3600000)/60000);
+  const s = Math.floor((diff%60000)/1000);
+  document.getElementById('countdown').innerHTML =
+    `<div class="cd-unit"><span class="cd-n">${String(h).padStart(2,'0')}</span><span class="cd-l">saat</span></div>
+     <div class="cd-unit"><span class="cd-n">${String(m).padStart(2,'0')}</span><span class="cd-l">dak</span></div>
+     <div class="cd-unit"><span class="cd-n">${String(s).padStart(2,'0')}</span><span class="cd-l">sn</span></div>`;
+}
+setInterval(updateCountdown, 1000);
+updateCountdown();
+
+// ─── NAVIGATION ──────────────────────────────────────────────────────────────
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  // desktop top nav
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    b.classList.toggle('active', (b.getAttribute('onclick')||'').includes("'"+id+"'"));
+  });
+  // mobile bottom nav
+  document.querySelectorAll('.bnav-btn').forEach(b => {
+    b.classList.toggle('active', b.id === 'bnav-'+id);
+  });
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function filterProducts(btn, cat) {
+  document.querySelectorAll('#page-new .filter-bar .filter-chip').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const list = cat === 'all' ? activeNewProducts : activeNewProducts.filter(p => p.cat === cat);
+  document.getElementById('newProductsGrid').innerHTML = list.length
+    ? list.map(renderCard).join('')
+    : '<p style="color:var(--text2);font-size:13px;padding:1rem 0">Bu kategoride şu an ürün yok. Yenile butonuna bas!</p>';
+}
+
+function filterBrands(btn, cat) {
+  document.querySelectorAll('#page-brands .filter-bar .filter-chip').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const list = cat === 'all' ? brands : brands.filter(b => b.origin_key === cat);
+  document.getElementById('brandsGrid').innerHTML = list.map(renderBrandCard).join('');
+}
+
+function showSaleTab(btn, cat) {
+  document.querySelectorAll('#page-sale .inner-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  let list = activeSaleProducts;
+  if (cat === '50plus') list = activeSaleProducts.filter(p => p.pct >= 50);
+  else if (cat === 'flash') list = activeSaleProducts.filter(p => p.pct >= 40);
+  document.getElementById('saleProductsGrid').innerHTML = list.map(renderCard).join('');
+}
+
+function showTrendTab(btn, cat) {
+  document.querySelectorAll('#page-trends .inner-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const list = cat === 'all' ? activeTrends : activeTrends.filter(t => t.cat === cat);
+  document.getElementById('trendsGrid').innerHTML = list.length
+    ? list.map((t,i) => renderTrendCard(t,i)).join('')
+    : '<p style="color:var(--text2);font-size:13px;padding:1rem 0">Bu platformdan bu sefer trend seçilmedi. Yenile!</p>';
+}
+
+function showViralTab(btn, cat) {
+  document.querySelectorAll('#page-viral .inner-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const list = cat === 'all' ? activeViralLooks : activeViralLooks.filter(t => t.cat === cat);
+  document.getElementById('viralGrid').innerHTML = list.length
+    ? list.map((t,i) => renderTrendCard(t,i)).join('')
+    : '<p style="color:var(--text2);font-size:13px;padding:1rem 0">Bu kategoride bu sefer içerik seçilmedi. Yenile!</p>';
+}
+
+// ─── MODALS ──────────────────────────────────────────────────────────────────
+function loadingBox() {
+  return `<div class="ai-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div><span>Yükleniyor...</span></div>`;
+}
+
+function showTrend(idx, src) {
+  const pool = (src && src !== 'all') ? activeViralLooks : [...activeTrends, ...activeViralLooks];
+  const t = pool[idx] || activeTrends[idx] || activeViralLooks[idx];
+  if (!t) return;
+  document.getElementById('modalTitle').innerHTML = (t.emoji||t.icon||'✨') + ' ' + t.title;
+  document.getElementById('modalContent').innerHTML = `
+    <div style="margin-bottom:12px">
+      <span style="font-size:12px;font-weight:500;color:#D4537E">${t.platform} · 🔥 ${t.views} görüntüleme</span>
+      <p style="font-size:14px;color:#666;margin-top:8px;line-height:1.65">${t.desc}</p>
+      <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">
+        ${(t.tags||[]).map(tag=>`<span style="font-size:11px;background:#F1EFE8;color:#2C2C2A;padding:3px 10px;border-radius:100px">${tag}</span>`).join('')}
+      </div>
+    </div>`;
+  document.getElementById('modal').classList.add('open');
+}
+
+function showBrand(name) {
+  const b = brands.find(x => x.name === name);
+  document.getElementById('modalTitle').innerHTML = (b ? b.logo + ' ' : '') + name;
+  document.getElementById('modalContent').innerHTML = `
+    <p style="font-size:14px;color:#666;line-height:1.65;margin-bottom:12px">
+      ${name} markası ${b ? b.origin : 'çeşitli'} kökenli olup Türkiye'deki başlıca kozmetik platformlarında satışa sunulmaktadır.
+    </p>
+    <a href="https://www.sephora.com.tr/search?keyword=${encodeURIComponent(name)}" target="_blank" rel="noopener"
+      style="display:inline-flex;align-items:center;gap:7px;background:#D4537E;color:#fff;font-size:13px;font-weight:500;padding:9px 18px;border-radius:100px;text-decoration:none;margin-right:8px;margin-bottom:8px">
+      🛍️ Sephora'da ara
+    </a>
+    <a href="https://www.gratis.com/catalogsearch/result/?q=${encodeURIComponent(name)}" target="_blank" rel="noopener"
+      style="display:inline-flex;align-items:center;gap:7px;background:#1D9E75;color:#fff;font-size:13px;font-weight:500;padding:9px 18px;border-radius:100px;text-decoration:none;margin-right:8px;margin-bottom:8px">
+      🛍️ Gratis'te ara
+    </a>
+    <a href="https://www.trendyol.com/sr?q=${encodeURIComponent(name)}" target="_blank" rel="noopener"
+      style="display:inline-flex;align-items:center;gap:7px;background:#F27A1A;color:#fff;font-size:13px;font-weight:500;padding:9px 18px;border-radius:100px;text-decoration:none;margin-bottom:8px">
+      🛍️ Trendyol'da ara
+    </a>`;
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal(e) {
+  if (e.target.id === 'modal') document.getElementById('modal').classList.remove('open');
+}
+
+// ─── BOOT ────────────────────────────────────────────────────────────────────
+loadData();
+</script>
+</body>
+</html>
